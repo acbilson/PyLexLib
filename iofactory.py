@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 
@@ -16,25 +17,17 @@ class IOFactory(object):
 class ConsoleIO(object):
 
   """ Manages IO with the console """
-  SupportedReturnTypes = [int, list]
 
-  def read(self, exitCode=None, returnType=None):
-      val = input()
-      if exitCode != None \
-      and val == exitCode \
-       or val == exitCode + '\n':
-        sys.exit()
-
-      if returnType == None:
-        return val
-      elif returnType in self.SupportedReturnTypes:
-        if type(returnType) == int:
-          return int(val)
-        if type(returnType) == list:
-          return list(val)
+  def read(self):
+    val = input()
+    return val
 
   def write(self, content):
     sys.stdout.write(content)
+
+  def clear(self):
+    os.system('cls')
+
 
 class FileIO(object):
 
@@ -86,6 +79,7 @@ class FakeIO(object):
     self.lastWrite = ''
     self.readCount = 0
     self.callStack = callStack
+    self.wasCleared = False
     
   def read(self, exitCode=None, returnType=None, JSONDecodeFunc=None):
     self.readCount += 1
@@ -96,6 +90,9 @@ class FakeIO(object):
     self.writeContent.append(content)
     self.lastWrite = content
     self.writeCount += 1
+
+  def clear(self):
+    self.wasCleared = True
 
   def getFromCallStack(self):
     response = None
